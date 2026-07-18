@@ -37,6 +37,15 @@ function prioritizeResults(results: SearchResult[]): SearchResult[] {
   });
 }
 
+/**
+ * 执行一轮热点发现流水线。
+ *
+ * <p>每个启用关键词依次经过账号识别、查询扩展、多源并发采集、去重与时效
+ * 过滤、AI 相关性审核、持久化和通知。单个来源或单条内容失败不会中断其他
+ * 来源；单个关键词失败也不会阻断后续关键词。</p>
+ *
+ * @param io Socket.IO 服务，用于向关键词订阅房间和全局通知频道推送增量结果
+ */
 export async function runHotspotCheck(io: Server): Promise<void> {
   console.log('🔍 Starting hotspot check...');
 
@@ -73,7 +82,7 @@ export async function runHotspotCheck(io: Server): Promise<void> {
       const expandedKeywords = await expandKeyword(keyword.text);
       console.log(`  📋 Expanded to ${expandedKeywords.length} variants: ${expandedKeywords.slice(0, 5).join(', ')}${expandedKeywords.length > 5 ? '...' : ''}`);
 
-      // 第二步：从多个来源获取数据（国际 + 国内并行请求）
+      // allSettled 保留部分成功结果：外部平台临时不可用时仍能完成本轮采集。
       const [
         twitterResults,
         bingResults,
@@ -116,7 +125,7 @@ export async function runHotspotCheck(io: Server): Promise<void> {
         }
       }
 
-      // 去重 → 新鲜度过滤 → 按来源优先级排序
+      // 先去重再过滤，避免同一 URL 占用有限的 AI 分析配额。
       const uniqueResults = deduplicateResults(allResults);
       const freshResults = filterByFreshness(uniqueResults);
       const sortedResults = prioritizeResults(freshResults);
@@ -152,7 +161,7 @@ export async function runHotspotCheck(io: Server): Promise<void> {
           const preMatch = preMatchKeyword(fullText, expandedKeywords);
           const analysis = await analyzeContent(fullText, keyword.text, preMatch);
 
-          // 只保存真实且相关的热点
+          // 风险控制采用多级门槛：真实性、相关性、关键词直接提及缺一不可。
           if (!analysis.isReal) {
             console.log(`  ❌ Filtered fake/spam: ${item.title.slice(0, 30)}...`);
             continue;
@@ -170,7 +179,7 @@ export async function runHotspotCheck(io: Server): Promise<void> {
             continue;
           }
 
-          // 保存热点
+          // URL + source 在写入前再次查重，降低不同采集器返回同一内容的概率。
           const hotspot = await prisma.hotspot.create({
             data: {
               title: item.title,
@@ -229,7 +238,7 @@ export async function runHotspotCheck(io: Server): Promise<void> {
             importance: hotspot.importance
           });
 
-          // 邮件通知（仅对高重要级别）
+          // 邮件属于高打扰渠道，只对 high / urgent 结果启用。
           if (['high', 'urgent'].includes(analysis.importance)) {
             await sendHotspotEmail(hotspot);
           }

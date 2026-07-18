@@ -23,7 +23,7 @@ const io = new Server(httpServer, {
   }
 });
 
-// Middleware
+// API 与 Socket.IO 共用同一个 HTTP 服务，避免部署时维护两套端口和跨域策略。
 app.use(cors());
 app.use(express.json());
 
@@ -38,7 +38,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Manual trigger for hotspot check
+/**
+ * 手动触发一次完整采集任务。
+ *
+ * 该端点会等待任务结束再响应，适合管理端操作和调试；生产环境应在网关层
+ * 增加鉴权与超时保护，避免与定时任务并发执行造成重复外部请求。
+ */
 app.post('/api/check-hotspots', async (req, res) => {
   try {
     await runHotspotCheck(io);
@@ -48,7 +53,7 @@ app.post('/api/check-hotspots', async (req, res) => {
   }
 });
 
-// WebSocket connection handling
+// 每个关键词映射为独立房间，使客户端只接收自己订阅的增量热点。
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 
@@ -66,7 +71,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// Scheduled job: Run hotspot check every 30 minutes
+// 定时任务失败只记录日志，不终止服务；下一个调度周期仍可继续执行。
 cron.schedule('*/30 * * * *', async () => {
   console.log('🔄 Running scheduled hotspot check...');
   try {
@@ -91,7 +96,7 @@ httpServer.listen(PORT, () => {
   `);
 });
 
-// Graceful shutdown
+// 关闭前释放 Prisma 连接，避免开发热重载和容器滚动更新遗留连接。
 process.on('SIGINT', async () => {
   console.log('Shutting down...');
   await prisma.$disconnect();

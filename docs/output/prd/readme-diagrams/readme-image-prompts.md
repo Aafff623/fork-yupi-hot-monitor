@@ -6,5 +6,5 @@
 
 ## banner.png
 
-Premium 3:1 GitHub README hero banner for “Yupi Hot Monitor”, visual metaphor for 面向内容创作者的热点监控与洞察系统, deep navy background, precise modular grid, luminous cyan with 日落橙 accent, elegant glass and soft volumetric light, generous negative space, high-end developer tool branding, crisp, balanced, no watermark, no tiny text, no logos, no people.
+Premium 3:1 GitHub README hero banner for “Threetwoa Hot Monitor”, visual metaphor for 面向内容创作者的热点监控与洞察系统, deep navy background, precise modular grid, luminous cyan with 日落橙 accent, elegant glass and soft volumetric light, generous negative space, high-end developer tool branding, crisp, balanced, no watermark, no tiny text, no logos, no people.
 

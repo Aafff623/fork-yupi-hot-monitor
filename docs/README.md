@@ -1,4 +1,4 @@
-# 🔥 热点监控工具 (Yupi Hot Monitor)
+# 🔥 热点监控工具 (Threetwoa Hot Monitor)
 
 > 一款自动发现热点、智能识别真假内容、实时推送通知的 AI 工具
 
