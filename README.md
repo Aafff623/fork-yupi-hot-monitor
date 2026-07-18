@@ -22,6 +22,8 @@
 
 ## 功能
 
+<p align="center"><img src="assets/images/readme/features.png" alt="核心能力总览" width="100%"></p>
+
 | 能力 | 说明 |
 |---|---|
 | 关键词订阅 | 启停监控词，支持 AI 查询扩展与账号识别 |
@@ -31,6 +33,10 @@
 | 实时交付 | Socket.IO 关键词房间和全局通知 |
 | 高优提醒 | high / urgent 信号发送邮件 |
 | 可降级运行 | 单来源失败不终止整轮采集；AI 未配置时使用保守评分 |
+
+## 主链路
+
+<p align="center"><img src="assets/images/readme/workflow.png" alt="产品主链路" width="100%"></p>
 
 ## 快速开始
 
@@ -61,7 +67,13 @@ Active Keywords → Account Detection → Query Expansion
   → AI Relevance Gate → Persist → WebSocket / Email
 ```
 
+## 技术栈
+
+<p align="center"><img src="assets/images/readme/tech-stack.png" alt="技术栈分层" width="100%"></p>
+
 ## 架构
+
+<p align="center"><img src="assets/images/readme/architecture.png" alt="系统架构" width="100%"></p>
 
 ```text
 React Client ← REST + Socket.IO → Express Server
@@ -72,6 +84,8 @@ React Client ← REST + Socket.IO → Express Server
 ```
 
 ## 模块
+
+<p align="center"><img src="assets/images/readme/structure.png" alt="仓库目录结构" width="100%"></p>
 
 | 路径 | 职责 |
 |---|---|
@@ -90,6 +104,16 @@ React Client ← REST + Socket.IO → Express Server
 4. server/src/services/search.ts 与 chinaSearch.ts
 5. server/src/routes
 6. client/src/services 与 App.tsx
+
+## 视觉画册
+
+点击缩略图可查看原始矢量图：
+
+| | |
+|:---:|:---:|
+| [![Features](assets/images/readme/features.png)](assets/images/readme/features.svg)<br>**Features** · 核心能力 | [![Architecture](assets/images/readme/architecture.png)](assets/images/readme/architecture.svg)<br>**Architecture** · 系统边界 |
+| [![Tech Stack](assets/images/readme/tech-stack.png)](assets/images/readme/tech-stack.svg)<br>**Tech Stack** · 技术分层 | [![Workflow](assets/images/readme/workflow.png)](assets/images/readme/workflow.svg)<br>**Workflow** · 主链路 |
+| [![Structure](assets/images/readme/structure.png)](assets/images/readme/structure.svg)<br>**Structure** · 仓库地图 | |
 
 ## 维护者
 
