@@ -3,7 +3,7 @@
 | 术语 | 含义 |
 |---|---|
 | Origin | `Aafff623/fork-yupi-hot-monitor`，当前二开远程仓库 |
-| Upstream | 原始项目远程，仅用于同步来源与历史 |
+| Upstream | 原作者李鱼皮（liyupi）的原始项目远程，用于同步来源、历史与许可证信息 |
 | Product root | server/ Express、Prisma 与采集任务；client/ React 仪表盘；skills/hot-monitor/ 独立技能；docs/ 运维说明 |
 | Main flow | 关键词 → 账号检测/查询扩展 → 多源并行采集 → 去重与时效过滤 → AI 审核 → 通知 |
 | Handoff | 实施前后的任务合同，记录范围、验证、风险和回滚 |

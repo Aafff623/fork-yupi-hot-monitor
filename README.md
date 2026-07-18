@@ -117,4 +117,4 @@ React Client ← REST + Socket.IO → Express Server
 
 ## 维护者
 
-二次开发维护者：[threetwoa](https://github.com/threetwoa)。外部平台内容与第三方依赖遵循各自条款，仓库许可见 LICENSE。
+原作者：**李鱼皮（[liyupi](https://github.com/liyupi)）**。二次开发维护者：[threetwoa](https://github.com/threetwoa)。上游项目为 [liyupi/yupi-hot-monitor](https://github.com/liyupi/yupi-hot-monitor)；外部平台内容与第三方依赖遵循各自条款，仓库许可见 LICENSE。
