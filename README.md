@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Maintainer-threetwoa-10b981?style=for-the-badge&labelColor=0f172a">
 </p>
 
-<p align="center"><a href="#功能">功能</a> · <a href="#快速开始">快速开始</a> · <a href="#处理链路">处理链路</a> · <a href="#架构">架构</a> · <a href="#模块">模块</a></p>
+<p align="center"><a href="#功能">功能</a> · <a href="#快速开始">快速开始</a> · <a href="#preview">Preview</a> · <a href="#showcase">Showcase</a> · <a href="#架构">架构</a> · <a href="#key-docs">Key docs</a></p>
 
 ---
 
@@ -129,9 +129,16 @@ python -m http.server 4317
 
 ## Showcase
 
-推荐主链路：关键词 → 账号检测/查询扩展 → 多源并行采集 → 去重与时效 → AI 审核 → 通知
+推荐演示路径（本地联调后按序截图）：
 
-真机截图槽位（待 Playwright 补齐）：
+| 步 | 动作 | 期望 |
+|---|---|---|
+| 1 | 启动 server + client，打开仪表盘 | 列表与关键词侧栏可见 |
+| 2 | 新增/启用关键词并触发检查 | 采集流水线跑通；失败源不拖死整轮 |
+| 3 | 观察热点卡片与 Socket 通知 | 相关度 / 直接提及 / 重要性可读 |
+| 4 | （可选）配置 SMTP 后触发 high/urgent | 邮件送达或日志可见 |
+
+真机截图槽位（待 Playwright；**禁止**文生图伪造 UI）：
 
 | 槽位 | 文件 | 状态 |
 |---|---|---|

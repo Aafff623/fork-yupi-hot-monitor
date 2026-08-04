@@ -1,7 +1,12 @@
 node_modules/
 dist/
 .env
+.env.*
+!.env.example
 *.db
 *.db-journal
 .DS_Store
 .idea/
+
+# local agent scratch（Issue / 备份，不入库）
+.scratch/
