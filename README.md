@@ -115,6 +115,54 @@ React Client ← REST + Socket.IO → Express Server
 | [![Tech Stack](assets/images/readme/tech-stack.png)](assets/images/readme/tech-stack.svg)<br>**Tech Stack** · 技术分层 | [![Workflow](assets/images/readme/workflow.png)](assets/images/readme/workflow.svg)<br>**Workflow** · 主链路 |
 | [![Structure](assets/images/readme/structure.png)](assets/images/readme/structure.svg)<br>**Structure** · 仓库地图 | |
 
+
+## Preview
+
+本仓为单产品应用，**不单独建设 Preview 资产站**（无组件 Gallery / demo 墙）。本地浏览 README 排版请用预览壳：
+
+```bash
+python -m http.server 4317
+# http://127.0.0.1:4317/preview-readme.html
+```
+
+> `preview-shell.png`：本仓声明省略（无 Preview 站可截）。
+
+## Showcase
+
+推荐主链路：关键词 → 账号检测/查询扩展 → 多源并行采集 → 去重与时效 → AI 审核 → 通知
+
+真机截图槽位（待 Playwright 补齐）：
+
+| 槽位 | 文件 | 状态 |
+|---|---|---|
+| 入口 / 主界面 | `assets/images/readme/showcase-01.png` | 占位 |
+| 核心流程 | `assets/images/readme/showcase-02.png` | 占位 |
+| 结果 / 交付 | `assets/images/readme/showcase-03.png` | 占位 |
+
+## 仓库结构
+
+```text
+fork-yupi-hot-monitor/
+├── server/                       # Express + Prisma + jobs
+├── client/                       # React 仪表盘
+├── skills/hot-monitor/           # 可独立调用 Skill
+├── docs/agents|adr|glossary|knowledge|outputs/
+├── assets/images/readme/
+├── AGENTS.md · CLAUDE.md · CONTEXT.md · LANGUAGES.md
+└── preview-readme.{html,css,js}  # 端口 4317
+```
+
+## Key docs
+
+| 文档 | 说明 |
+|---|---|
+| [CONTEXT.md](CONTEXT.md) | 领域事实与边界 |
+| [LANGUAGES.md](LANGUAGES.md) | 共享用词 |
+| [AGENTS.md](AGENTS.md) | Agent 硬约束 |
+| [docs/agents/workflow.md](docs/agents/workflow.md) | 任务流 |
+| [docs/outputs/prd/readme-diagrams/](docs/outputs/prd/readme-diagrams/) | README 配图 brief / prompts |
+| [assets/README.md](assets/README.md) | 媒体约定 |
+
 ## 维护者
 
 原作者：**李鱼皮（[liyupi](https://github.com/liyupi)）**。二次开发维护者：[threetwoa](https://github.com/threetwoa)。上游项目为 [liyupi/yupi-hot-monitor](https://github.com/liyupi/yupi-hot-monitor)；外部平台内容与第三方依赖遵循各自条款，仓库许可见 LICENSE。
