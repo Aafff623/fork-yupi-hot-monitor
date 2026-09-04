@@ -361,14 +361,19 @@ export async function searchWeibo(query: string): Promise<SearchResult[]> {
     const results: SearchResult[] = [];
     const queryLower = query.toLowerCase();
     const queryWords = queryLower.split(/\s+/).filter(w => w.length > 0);
+    // 最小 token 长度：更短的片段做子串匹配会命中大量无关话题
+    const MIN_TOKEN_LENGTH = 2;
 
     for (const item of hotItems) {
       const word = (item.note || item.word || '').toLowerCase();
-      
-      // 检查关键词是否匹配热搜话题（任一查询词出现在话题中，或话题出现在查询中）
-      const isMatch = queryWords.some(qw => word.includes(qw) || qw.includes(word))
-        || word.includes(queryLower)
-        || queryLower.includes(word);
+      if (!word) continue;
+
+      // 分词级双向包含：话题含整个查询 / 查询含完整话题 / 话题含任一查询词，
+      // 且参与匹配的 token 至少 2 字符，避免单字误匹配产生无关热点。
+      const isMatch =
+        (queryLower.length >= MIN_TOKEN_LENGTH && word.includes(queryLower)) ||
+        (word.length >= MIN_TOKEN_LENGTH && queryLower.includes(word)) ||
+        queryWords.some(qw => qw.length >= MIN_TOKEN_LENGTH && word.includes(qw));
 
       if (isMatch) {
         const topicName = item.note || item.word;
@@ -384,9 +389,9 @@ export async function searchWeibo(query: string): Promise<SearchResult[]> {
       }
     }
 
-    // 如果没有匹配的热搜，返回所有热搜中的前几条作为参考（对于热点监控有价值）
+    // 无匹配就不产出结果，避免无关热搜进入 AI 审核与通知链路
     if (results.length === 0) {
-      console.log(`Weibo hot search: no match for "${query}", returning top trends`);
+      console.log(`Weibo hot search: no match for "${query}", returning empty results`);
     } else {
       console.log(`Weibo hot search: ${results.length} matches for "${query}"`);
     }

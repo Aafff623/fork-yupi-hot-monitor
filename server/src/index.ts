@@ -16,15 +16,22 @@ dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
+
+// API 跨域只放行前端来源；CLIENT_URL 支持逗号分隔多个，与 Socket.IO 共用同一约定。
+const clientOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: clientOrigins,
     methods: ['GET', 'POST']
   }
 });
 
 // API 与 Socket.IO 共用同一个 HTTP 服务，避免部署时维护两套端口和跨域策略。
-app.use(cors());
+app.use(cors({ origin: clientOrigins }));
 app.use(express.json());
 
 // Routes
@@ -41,13 +48,16 @@ app.get('/api/health', (req, res) => {
 /**
  * 手动触发一次完整采集任务。
  *
- * 该端点会等待任务结束再响应，适合管理端操作和调试；生产环境应在网关层
- * 增加鉴权与超时保护，避免与定时任务并发执行造成重复外部请求。
+ * 该端点会等待任务结束再响应，适合管理端操作和调试；与定时任务由进程内
+ * 运行锁互斥，重叠时立即返回 skipped，不会造成重复采集。生产环境应在
+ * 网关层增加鉴权与超时保护。
  */
 app.post('/api/check-hotspots', async (req, res) => {
   try {
-    await runHotspotCheck(io);
-    res.json({ message: 'Hotspot check completed' });
+    const ran = await runHotspotCheck(io);
+    res.json({
+      message: ran ? 'Hotspot check completed' : 'Hotspot check skipped: already running'
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to run hotspot check' });
   }

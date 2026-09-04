@@ -37,6 +37,8 @@ function prioritizeResults(results: SearchResult[]): SearchResult[] {
   });
 }
 
+let checkInProgress = false;
+
 /**
  * 执行一轮热点发现流水线。
  *
@@ -44,9 +46,26 @@ function prioritizeResults(results: SearchResult[]): SearchResult[] {
  * 过滤、AI 相关性审核、持久化和通知。单个来源或单条内容失败不会中断其他
  * 来源；单个关键词失败也不会阻断后续关键词。</p>
  *
+ * <p>进程内运行锁：定时任务与手动触发互斥，重叠时直接跳过本轮，避免重复
+ * 外部请求与入库竞态。返回是否实际执行。</p>
+ *
  * @param io Socket.IO 服务，用于向关键词订阅房间和全局通知频道推送增量结果
  */
-export async function runHotspotCheck(io: Server): Promise<void> {
+export async function runHotspotCheck(io: Server): Promise<boolean> {
+  if (checkInProgress) {
+    console.log('⏭ Hotspot check already in progress, skipping this round');
+    return false;
+  }
+  checkInProgress = true;
+  try {
+    await performHotspotCheck(io);
+    return true;
+  } finally {
+    checkInProgress = false;
+  }
+}
+
+async function performHotspotCheck(io: Server): Promise<void> {
   console.log('🔍 Starting hotspot check...');
 
   // 获取所有激活的关键词
@@ -179,9 +198,15 @@ export async function runHotspotCheck(io: Server): Promise<void> {
             continue;
           }
 
-          // URL + source 在写入前再次查重，降低不同采集器返回同一内容的概率。
-          const hotspot = await prisma.hotspot.create({
-            data: {
+          // URL + source 有数据库唯一键兜底；upsert 保证并发下不会撞唯一约束。
+          const hotspot = await prisma.hotspot.upsert({
+            where: {
+              url_source: {
+                url: item.url,
+                source: item.source
+              }
+            },
+            create: {
               title: item.title,
               content: item.content,
               url: item.url,
@@ -208,6 +233,7 @@ export async function runHotspotCheck(io: Server): Promise<void> {
               publishedAt: item.publishedAt || null,
               keywordId: keyword.id
             },
+            update: {},
             include: {
               keyword: true
             }

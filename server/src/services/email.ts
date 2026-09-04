@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { type Transporter } from 'nodemailer';
 
 interface Hotspot {
   id: string;
@@ -12,10 +12,19 @@ interface Hotspot {
   createdAt: Date;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let transporter: any = null;
+let transporter: Transporter | null = null;
 
-function getTransporter(): any {
+/** 转义外部采集内容（标题 / 摘要 / URL 等），防止 HTML 注入破坏邮件排版 */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getTransporter(): Transporter | null {
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.warn('Email configuration incomplete, notifications disabled');
     return null;
@@ -83,20 +92,20 @@ export async function sendHotspotEmail(hotspot: Hotspot & { keyword?: { text: st
               <p style="margin: 10px 0 0; opacity: 0.9;">来自热点监控系统</p>
             </div>
             <div class="content">
-              <h2 style="margin-top: 0;">${hotspot.title}</h2>
+              <h2 style="margin-top: 0;">${escapeHtml(hotspot.title)}</h2>
               
               <p><span class="badge badge-${hotspot.importance}">${hotspot.importance.toUpperCase()}</span></p>
               
-              ${hotspot.summary ? `<p><strong>摘要：</strong>${hotspot.summary}</p>` : ''}
+              ${hotspot.summary ? `<p><strong>摘要：</strong>${escapeHtml(hotspot.summary)}</p>` : ''}
               
               <div class="meta">
                 <p><strong>来源：</strong>${hotspot.source}</p>
                 <p><strong>相关性评分：</strong>${hotspot.relevance}/100</p>
-                ${hotspot.keyword ? `<p><strong>关键词：</strong>${hotspot.keyword.text}</p>` : ''}
+                ${hotspot.keyword ? `<p><strong>关键词：</strong>${escapeHtml(hotspot.keyword.text)}</p>` : ''}
                 <p><strong>发现时间：</strong>${new Date(hotspot.createdAt).toLocaleString('zh-CN')}</p>
               </div>
               
-              <a href="${hotspot.url}" class="button">查看原文 →</a>
+              <a href="${escapeHtml(hotspot.url)}" class="button">查看原文 →</a>
             </div>
           </div>
         </body>
@@ -123,7 +132,7 @@ export async function sendDigestEmail(hotspots: Hotspot[]): Promise<boolean> {
     const hotspotsHtml = hotspots.map(h => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">
-          <a href="${h.url}" style="color: #667eea; text-decoration: none;">${h.title.slice(0, 60)}...</a>
+          <a href="${escapeHtml(h.url)}" style="color: #667eea; text-decoration: none;">${escapeHtml(h.title.slice(0, 60))}...</a>
         </td>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">${h.source}</td>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">${h.importance}</td>

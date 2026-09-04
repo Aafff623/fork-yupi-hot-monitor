@@ -21,8 +21,9 @@ router.get('/', async (req, res) => {
       sortOrder = 'desc'
     } = req.query;
 
-    const pageNum = parseInt(page as string);
-    const limitNum = parseInt(limit as string);
+    // 非法分页参数回退默认值；limit 限制上限，防止一次拉取过多数据
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 20));
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
@@ -68,6 +69,9 @@ router.get('/', async (req, res) => {
 
     // importance 和 hot 需要在内存中排序（Prisma 不支持自定义排序）
     const needsMemorySort = sort === 'importance' || sort === 'hot';
+    // 内存排序只取最近 SORT_WINDOW 条，避免随数据增长退化为全表加载；
+    // 超出窗口的深分页按窗口内结果返回。
+    const SORT_WINDOW: number = 500;
 
     switch (sort) {
       case 'publishedAt':
@@ -89,7 +93,7 @@ router.get('/', async (req, res) => {
       prisma.hotspot.findMany({
         where,
         orderBy,
-        ...(needsMemorySort ? {} : { skip, take: limitNum }),
+        ...(needsMemorySort ? { take: SORT_WINDOW } : { skip, take: limitNum }),
         include: {
           keyword: {
             select: { id: true, text: true, category: true }
