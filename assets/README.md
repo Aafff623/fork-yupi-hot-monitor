@@ -20,5 +20,4 @@
 2. 禁止新建 `docs/images/`。
 3. 不提交含密钥、账号、用户隐私的截图。
 4. `ppt/` `speeches/` `video/` `images/avatar|icon/` **按需再建**，不用 `.gitkeep` 凑骨架；旧路径 `assets/theme/{ppt,script}` 已废弃。
-5. 出图规范见 `docs/outputs/prd/readme-diagrams/`。
-6. Showcase **禁止**文生图伪造 UI；契约说明图可重生但本轮六图沿用。
+5. Showcase **禁止**文生图伪造 UI；契约说明图可重生但本轮六图沿用。
